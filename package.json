@@ -4,6 +4,10 @@
   "description": "MCP server for Alpha Vantage stock market data",
   "main": "dist/index.js",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:qubaomingg/stock-analysis-mcp.git"
+  },
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
