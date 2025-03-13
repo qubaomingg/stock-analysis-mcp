@@ -102,65 +102,68 @@ function formatTimeSeriesData(timeSeries: any, symbol: string, interval: string 
  * @returns Formatted alerts as a string
  */
 export async function getStockAlerts(symbol: string | string[], threshold: number = 5): Promise<string> {
-    try {
-        // Ensure symbol is a string, not an array
-        const symbolStr = Array.isArray(symbol) ? symbol[0] : symbol;
+  try {
+    // Ensure symbol is a string, not an array
+    const symbolStr = Array.isArray(symbol) ? symbol[0] : symbol;
 
-        // Get daily stock data for analysis
-        const url = `${BASE_URL}?function=TIME_SERIES_DAILY&symbol=${symbolStr}&outputsize=compact&apikey=${API_KEY}`;
-        const response = await axios.get(url);
+    // Get daily stock data for analysis
+    const url = `${BASE_URL}?function=TIME_SERIES_DAILY&symbol=${symbolStr}&outputsize=compact&apikey=${API_KEY}`;
+    const response = await axios.get(url);
 
-        if (response.data['Error Message']) {
-            throw new Error(response.data['Error Message']);
-        }
-
-        const timeSeries = response.data['Time Series (Daily)'];
-
-        if (!timeSeries) {
-            throw new Error('No time series data found in the response');
-        }
-
-        // Get dates sorted from newest to oldest
-        const dates = Object.keys(timeSeries).sort().reverse();
-
-        if (dates.length < 2) {
-            return `Not enough historical data available for ${symbolStr} to generate alerts.`;
-        }
-
-        let alerts = `Stock Alerts for ${symbolStr.toUpperCase()} (${threshold}% threshold):\n\n`;
-        let alertCount = 0;
-
-        // Analyze the last 10 days (or less if not available)
-        const daysToAnalyze = Math.min(10, dates.length - 1);
-
-        for (let i = 0; i < daysToAnalyze; i++) {
-            const currentDate = dates[i];
-            const previousDate = dates[i + 1];
-
-            const currentClose = parseFloat(timeSeries[currentDate]['4. close']);
-            const previousClose = parseFloat(timeSeries[previousDate]['4. close']);
-
-            // Calculate percentage change
-            const percentChange = ((currentClose - previousClose) / previousClose) * 100;
-            const absPercentChange = Math.abs(percentChange);
-
-            // Check if change exceeds threshold
-            if (absPercentChange >= threshold) {
-                const direction = percentChange >= 0 ? 'increased' : 'decreased';
-                alerts += `${currentDate}: Price ${direction} by ${absPercentChange.toFixed(2)}% from ${previousClose} to ${currentClose}\n`;
-                alertCount++;
-            }
-        }
-
-        if (alertCount === 0) {
-            alerts += `No significant price movements (>=${threshold}%) detected in the last ${daysToAnalyze} trading days.\n`;
-        }
-
-        return alerts;
-    } catch (error) {
-        if (axios.isAxiosError(error)) {
-            throw new Error(`API request failed: ${error.message}`);
-        }
-        throw error;
+    if (response.data['Error Message']) {
+      throw new Error(response.data['Error Message']);
     }
-} 
+
+    const timeSeries = response.data['Time Series (Daily)'];
+
+    if (!timeSeries) {
+      throw new Error('No time series data found in the response');
+    }
+
+    // Get dates sorted from newest to oldest
+    const dates = Object.keys(timeSeries).sort().reverse();
+
+    if (dates.length < 2) {
+      return `Not enough historical data available for ${symbolStr} to generate alerts.`;
+    }
+
+    let alerts = `Stock Alerts for ${symbolStr.toUpperCase()} (${threshold}% threshold):\n\n`;
+    let alertCount = 0;
+
+    // Analyze the last 10 days (or less if not available)
+    const daysToAnalyze = Math.min(10, dates.length - 1);
+
+    for (let i = 0; i < daysToAnalyze; i++) {
+      const currentDate = dates[i];
+      const previousDate = dates[i + 1];
+
+      const currentClose = parseFloat(timeSeries[currentDate]['4. close']);
+      const previousClose = parseFloat(timeSeries[previousDate]['4. close']);
+
+      // Calculate percentage change
+      const percentChange =
+        ((currentClose - previousClose) / previousClose) * 100;
+      const absPercentChange = Math.abs(percentChange);
+
+      // Check if change exceeds threshold
+      if (absPercentChange >= threshold) {
+        const direction = percentChange >= 0 ? 'increased' : 'decreased';
+        alerts += `${currentDate}: Price ${direction} by ${absPercentChange.toFixed(
+          2,
+        )}% from ${previousClose} to ${currentClose}\n`;
+        alertCount++;
+      }
+    }
+
+    if (alertCount === 0) {
+      alerts += `No significant price movements (>=${threshold}%) detected in the last ${daysToAnalyze} trading days.\n`;
+    }
+
+    return alerts;
+  } catch (error) {
+    if (axios.isAxiosError(error)) {
+      throw new Error(`API request failed: ${error.message}`);
+    }
+    throw error;
+  }
+}
