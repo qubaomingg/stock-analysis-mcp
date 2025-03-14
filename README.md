@@ -1,4 +1,5 @@
 # Alpha Vantage Stock MCP Server
+[![smithery badge](https://smithery.ai/badge@qubaomingg/stock-analysis-mcp)](https://smithery.ai/server/@qubaomingg/stock-analysis-mcp)
 
 This is a Model Context Protocol (MCP) server that provides stock market data from Alpha Vantage API. It allows Claude and other MCP clients to access real-time and historical stock data.
 
@@ -16,6 +17,15 @@ This is a Model Context Protocol (MCP) server that provides stock market data fr
 
 ## Installation
 
+### Installing via Smithery
+
+To install stock-analysis-mcp for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@qubaomingg/stock-analysis-mcp):
+
+```bash
+npx -y @smithery/cli install @qubaomingg/stock-analysis-mcp --client claude
+```
+
+### Manual Installation
 1. Clone this repository
 2. Install dependencies:
    ```
